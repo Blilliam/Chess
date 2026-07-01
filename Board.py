@@ -14,9 +14,16 @@ class Board:
                     color = Constants.COLOR2
                 self.board[i][j] = Tile(i, j, color, self)
                 
+    def getPeice(self, x, y):
+        if (0 <= x <= 7 and 0 <= y <= 7):
+            if (self.board[y][x].isOccupied()):
+                return self.board[y][x].piece
+        return None
 
     def update(self):
-        ...
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                self.board[i][j].update()
 
     def draw(self, screen):
         for i in range(len(self.board)):

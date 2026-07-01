@@ -34,6 +34,7 @@ while gameObj.isRunning:
     screen.fill((40, 44, 52))  # Clears screen with a dark gray color
     
     gameObj.draw(screen)
+    gameObj.update()
     
 
     # Update the full display Surface to the screen

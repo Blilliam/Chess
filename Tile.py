@@ -16,7 +16,9 @@ class Tile() :
         self.mainBoard = mainBoard
     
     def update(self) -> None:
-        ...
+        if self.piece != None:
+            self.piece.update()
+
     def draw(self, screen) -> None:
 
         pygame.draw.rect(screen, self.color, [self.x * Constants.TILE_SIZE + Constants.BOARDX, self.y * Constants.TILE_SIZE + Constants.BOARDY,Constants.TILE_SIZE, Constants.TILE_SIZE])

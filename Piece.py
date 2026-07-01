@@ -20,13 +20,13 @@ class Piece():
         self.mainBoard = mainBoard
 
     def update(self):
-        ...
-
-    def draw(self, screen):
-        screen.blit(self.img, (self.x * Constants.TILE_SIZE, self.y * Constants.TILE_SIZE))
         if self.isSelected:
             for move in self.getMoves():
                 self.mainBoard.board[move[0]][move[1]].isMoveable = True
+
+    def draw(self, screen):
+        screen.blit(self.img, (self.x * Constants.TILE_SIZE, self.y * Constants.TILE_SIZE))
+       
 
 
     def getMoves(self) -> list:
