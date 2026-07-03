@@ -1,6 +1,7 @@
 import pygame
 
 from Board import Board
+import Constants
 from Constants import *
 
 
@@ -11,6 +12,7 @@ class GameObject:
         self.mainBoard.fillBoard()
         self.isRunning = True
         self.cPiece = None
+        self.turn = Constants.WHITE
 
     def draw(self, screen):
         self.mainBoard.draw(screen)
@@ -25,34 +27,61 @@ class GameObject:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.handleClick(event)
 
+    def clearSelectionAndMoves(self):
+        for row in self.mainBoard.board:
+            for tile in row:
+                tile.isMoveable = False
+
+        for row in self.mainBoard.board:
+            for tile in row:
+                if tile.isOccupied():
+                    tile.piece.isSelected = False
+
+    def selectPiece(self, piece):
+        self.clearSelectionAndMoves()
+        self.cPiece = piece
+        self.cPiece.isSelected = True
+
+        for move in self.cPiece.getMoves():
+            row, col = move
+            if 0 <= row < 8 and 0 <= col < 8:
+                self.mainBoard.board[row][col].isMoveable = True
+
     def handleClick(self, event):
         cX = event.pos[0] // TILE_SIZE
         cY = event.pos[1] // TILE_SIZE
 
+        if not (0 <= cX < 8 and 0 <= cY < 8):
+            return
+
+        clickedTile = self.mainBoard.board[cY][cX]
         tempPiece = self.mainBoard.getPeice(cX, cY)
 
-        if (tempPiece == None): # tile
-            cTile = self.mainBoard.board[cY][cX]
-            if (cTile.isMoveable and self.cPiece != None):
-                cTile.putPiece(self.cPiece)
-                self.mainBoard.board[self.cPiece.y][self.cPiece.x].putPiece(None)
-                
-                if cTile.piece:
-                    cTile.piece.x = cX
-                    cTile.piece.y = cY
-        else: # piece
-            self.cPiece = tempPiece
-            self.cPiece.isSelected = True
+        if tempPiece is not None:
+            if self.cPiece is tempPiece and self.cPiece.isSelected:
+                self.clearSelectionAndMoves()
+                self.cPiece = None
+                return
 
-        for i in range(len(self.mainBoard.board)):
-            for j in range(len(self.mainBoard.board[i])):
-                if self.mainBoard.board[i][j].isOccupied():
-                    if (i != cY and j != cX):
-                        self.mainBoard.board[i][j].piece.isSelected = False
+            self.selectPiece(tempPiece)
+            return
 
-        for i in range(len(self.mainBoard.board)):
-            for j in range(len(self.mainBoard.board[i])):
-                self.mainBoard.board[i][j].isMoveable = False
+        if self.cPiece is not None and clickedTile.isMoveable and self.cPiece.team == self.turn:
+            originTile = self.mainBoard.board[self.cPiece.y][self.cPiece.x]
+            originTile.putPiece(None)
+            clickedTile.putPiece(self.cPiece)
+            self.cPiece.x = cX
+            self.cPiece.y = cY
+            self.cPiece.isSelected = False
+            self.cPiece = None
 
-            
+            if self.turn == Constants.WHITE:
+                self.turn = Constants.BLACK
+            else:
+                self.turn = Constants.WHITE
+
+        self.clearSelectionAndMoves()
+
+        print(self.turn)
+
             
