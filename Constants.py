@@ -10,3 +10,5 @@ COLOR2 = [255, 255, 255]
 BOARDX = 0
 BOARDY = 0
 
+def getOppColor(color):
+    return BLACK if color == WHITE else WHITE

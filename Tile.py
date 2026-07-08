@@ -35,6 +35,16 @@ class Tile() :
     def isOccupied(self) -> bool:
         return not self.piece == None
     
+    def movePiece(self, clickedTile):
+        clickedTile.putPiece(None)
+        clickedTile.putPiece(self.piece)
+        self.piece.x = clickedTile.x
+        self.piece.y = clickedTile.y
+        self.piece = None
+        clickedTile.piece.hasMoved = True
+
+
+    
 
 
             

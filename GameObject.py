@@ -57,6 +57,19 @@ class GameObject:
         clickedTile = self.mainBoard.board[cY][cX]
         tempPiece = self.mainBoard.getPeice(cX, cY)
 
+        
+
+        if self.cPiece != None and (clickedTile.isMoveable) and self.cPiece.team == self.turn:
+            originTile = self.mainBoard.board[self.cPiece.y][self.cPiece.x]
+            self.cPiece.isSelected = False
+            originTile.movePiece(clickedTile)
+
+            self.clearSelectionAndMoves()
+            
+
+            self.turn = Constants.getOppColor(self.turn)
+            return
+
         if tempPiece is not None:
             if self.cPiece is tempPiece and self.cPiece.isSelected:
                 self.clearSelectionAndMoves()
@@ -65,20 +78,6 @@ class GameObject:
 
             self.selectPiece(tempPiece)
             return
-
-        if self.cPiece is not None and clickedTile.isMoveable and self.cPiece.team == self.turn:
-            originTile = self.mainBoard.board[self.cPiece.y][self.cPiece.x]
-            originTile.putPiece(None)
-            clickedTile.putPiece(self.cPiece)
-            self.cPiece.x = cX
-            self.cPiece.y = cY
-            self.cPiece.isSelected = False
-            self.cPiece = None
-
-            if self.turn == Constants.WHITE:
-                self.turn = Constants.BLACK
-            else:
-                self.turn = Constants.WHITE
 
         self.clearSelectionAndMoves()
 

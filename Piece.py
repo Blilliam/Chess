@@ -18,6 +18,7 @@ class Piece():
         self.y = row
         self.isSelected = False
         self.mainBoard = mainBoard
+        self.hasMoved = False
 
     def update(self):
         if self.isSelected:
@@ -35,7 +36,9 @@ class Piece():
 class Pawn(Piece):
     def getMoves(self) -> list:
         moves = []
+
         
+
         direction = -1 
         if self.team == Constants.WHITE:
             direction = 1
@@ -46,7 +49,14 @@ class Pawn(Piece):
         if 0 <= row < 8 and 0 <= col < 8:
             if not self.mainBoard.board[row][col].isOccupied():
                 moves.append([row, col])
-                
+
+                if not self.hasMoved:
+                    row = self.y + direction *  2
+
+                    if 0 <= row < 8 and 0 <= col < 8:
+                        if not self.mainBoard.board[row][col].isOccupied():
+                            moves.append([row, col])
+                    
         return moves
 
 class King(Piece):
@@ -151,4 +161,32 @@ class Bishop(Piece):
 
 class Knight(Piece):
     def getMoves(self):
-        ...
+        startMoves = [[2, 1],
+                 [2, -1],
+                 [1, 2],
+                 [1, -2],
+                 [-1, 2],
+                 [-1, -2],
+                 [-2, 1],
+                 [-2, -1],]
+        moves = []
+
+        
+        
+        for dx, dy in startMoves:
+            row = self.y + dy
+            col = self.x + dx
+
+            if not (0 <= row < 8 and 0 <= col < 8):
+                continue
+                
+            square = self.mainBoard.board[row][col]
+            #if not square.isOccupied():
+            moves.append([row, col])
+
+            #else:
+                # if square.piece.team != self.team:
+                #     moves.append([row, col])
+                # break
+
+        return moves
