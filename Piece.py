@@ -57,6 +57,15 @@ class Pawn(Piece):
                         if not self.mainBoard.board[row][col].isOccupied():
                             moves.append([row, col])
                     
+        row = self.y + direction
+        for i in (-1, 1):
+            col = self.x + i
+            if 0 <= row < 8 and 0 <= col < 8:
+                if self.mainBoard.board[row][col].isOccupied():
+                    moves.append([row, col])
+
+        
+
         return moves
 
 class King(Piece):
@@ -74,6 +83,9 @@ class King(Piece):
                 if 0 <= row < 8 and 0 <= col < 8:
                     if not self.mainBoard.board[row][col].isOccupied():
                         moves.append([row, col])
+                    else:
+                        if self.mainBoard.board[row][col].piece.team != self.team:
+                            moves.append([row, col])
                         
         return moves
 

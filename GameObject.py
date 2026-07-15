@@ -3,6 +3,8 @@ import pygame
 from Board import Board
 import Constants
 from Constants import *
+import Piece
+import copy
 
 
 class GameObject:
@@ -10,6 +12,7 @@ class GameObject:
     def __init__(self):
         self.mainBoard = Board()
         self.mainBoard.fillBoard()
+        self.pastBoard = Board()
         self.isRunning = True
         self.cPiece = None
         self.turn = Constants.WHITE
@@ -37,6 +40,8 @@ class GameObject:
                 if tile.isOccupied():
                     tile.piece.isSelected = False
 
+        
+
     def selectPiece(self, piece):
         self.clearSelectionAndMoves()
         self.cPiece = piece
@@ -57,7 +62,8 @@ class GameObject:
         clickedTile = self.mainBoard.board[cY][cX]
         tempPiece = self.mainBoard.getPeice(cX, cY)
 
-        
+        if (self.isInCheck()):
+            self.pastBoard = copy.deepcopy(self.mainBoard)
 
         if self.cPiece != None and (clickedTile.isMoveable) and self.cPiece.team == self.turn:
             originTile = self.mainBoard.board[self.cPiece.y][self.cPiece.x]
@@ -65,6 +71,7 @@ class GameObject:
             originTile.movePiece(clickedTile)
 
             self.clearSelectionAndMoves()
+            self.isInCheck(self.getKing(Constants.getOppColor(self.turn)))
             
 
             self.turn = Constants.getOppColor(self.turn)
@@ -73,6 +80,7 @@ class GameObject:
         if tempPiece is not None:
             if self.cPiece is tempPiece and self.cPiece.isSelected:
                 self.clearSelectionAndMoves()
+                self.isInCheck(self.getKing(Constants.getOppColor(self.turn)))
                 self.cPiece = None
                 return
 
@@ -80,7 +88,28 @@ class GameObject:
             return
 
         self.clearSelectionAndMoves()
+        self.isInCheck(self.getKing(Constants.getOppColor(self.turn)))
+        
 
-        print(self.turn)
+    def getKing(self, team) -> Piece:
+        for row in self.mainBoard.board:
+            for tile in row:
+                if (tile.isOccupied() and isinstance(tile.piece, Piece.King) and tile.piece.team == team):
+                    return tile.piece
+
+
+    def isInCheck(self, king) -> bool:
+        allOppMoves = []
+        for row in self.mainBoard.board:
+            for tile in row:
+                if (tile.isOccupied() and king.team == Constants.getOppColor(tile.piece.team)):
+                    for move in tile.piece.getMoves():
+                        allOppMoves.append(move)
+        for y, x in allOppMoves:
+            if (king.x == x and king.y == y):
+                print("in check")
+                return True
+        return False
+
 
             
