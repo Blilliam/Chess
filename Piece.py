@@ -12,7 +12,8 @@ class Piece():
             startString += "Black/"
         else:
             startString += "White/"
-        self.img = pygame.image.load(startString + path).convert_alpha()
+        self.imgPath = startString + path
+        self.img = pygame.image.load(self.imgPath).convert_alpha()
         self.img = pygame.transform.scale(self.img, (Constants.TILE_SIZE, Constants.TILE_SIZE))
         self.x = col
         self.y = row
@@ -32,6 +33,50 @@ class Piece():
 
     def getMoves(self) -> list:
         raise NotImplemented
+
+    def getLegalMoves(self) -> list:
+        legalMoves = []
+
+        tempBoard = self.mainBoard.createBoardSnapshot(self.mainBoard)
+    
+        for move in self.getMoves():
+            row, col = move
+            if not (0 <= row < 8 and 0 <= col < 8):
+                continue
+            startTile = tempBoard.board[self.y][self.x]
+            targetTile = tempBoard.board[row][col]
+
+            if targetTile.isOccupied() and targetTile.piece.team == self.team:
+                continue
+
+            originalX = self.x
+            originalY = self.y
+            originalBoard = self.mainBoard
+            targetTile.putPiece(None)
+            targetTile.putPiece(startTile.piece)
+            startTile.putPiece(None)
+            startTile.piece.x = targetTile.x
+            startTile.piece.y = targetTile.y
+
+            king = self.getKingOnBoard(tempBoard, self.team)
+            if not self.isBoardInCheck(tempBoard, king):
+                legalMoves.append(move)
+
+            movingPiece.mainBoard = originalBoard
+            self.x = originalX
+            self.y = originalY
+
+        return legalMoves
+
+    def getCopy(self, board) -> Piece:
+        copyPiece = self.__class__.__new__(self.__class__)
+        copyPiece.team = self.team
+        copyPiece.x = self.x
+        copyPiece.y = self.y
+        copyPiece.img = self.img
+        copyPiece.mainBoard = board
+
+
 
 class Pawn(Piece):
     def getMoves(self) -> list:

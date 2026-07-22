@@ -20,6 +20,41 @@ class Board:
                 return self.board[y][x].piece
         return None
 
+    def createBoardSnapshot(self, sourceBoard=None):
+            if sourceBoard is None:
+                boardToCopy = self.mainBoard 
+            else:
+                boardToCopy = copy.copy(sourceBoard)
+            snapshotBoard = Board()
+            for row in range(8):
+                for col in range(8):
+                    sourceTile = boardToCopy.board[row][col]
+                    targetTile = snapshotBoard.board[row][col]
+                    if sourceTile.isOccupied():
+                        piece = sourceTile.piece.getCopy(snapshotBoard)
+                        targetTile.putPiece(piece)
+            return snapshotBoard
+
+    def getKingOnBoard(self, team) -> Piece:
+            for row in self.board:
+                for tile in row:
+                    if tile.isOccupied() and isinstance(tile.piece, Piece.King) and tile.piece.team == team:
+                        return tile.piece
+            return None
+
+    def isBoardInCheck(self, board, king) -> bool:
+            if king is None:
+                return False
+    
+            allOppMoves = []
+            for row in board.board:
+                for tile in row:
+                    if tile.isOccupied() and king.team == Constants.getOppColor(tile.piece.team):
+                        for move in tile.piece.getMoves():
+                            allOppMoves.append(tuple(move))
+    
+            return (king.y, king.x) in allOppMoves
+
     def update(self):
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
