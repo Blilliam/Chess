@@ -24,7 +24,7 @@ class Piece():
 
     def update(self):
         if self.isSelected:
-            for move in self.getMoves():
+            for move in self.getLegalMoves():
                 self.mainBoard.board[move[0]][move[1]].isMoveable = True
 
     def draw(self, screen):
@@ -36,48 +36,47 @@ class Piece():
         raise NotImplemented
 
     def getLegalMoves(self) -> list:
-        # Test candidate moves on a temporary board to avoid making illegal moves permanently.
+        # Test each candidate move on its own fresh board snapshot to avoid
+        # mutating the real piece or leaking state between iterations.
         legalMoves = []
 
-        tempBoard = self.mainBoard.createBoardSnapshot(self.mainBoard)
-    
         for move in self.getMoves():
             row, col = move
             if not (0 <= row < 8 and 0 <= col < 8):
                 continue
+
+            tempBoard = self.mainBoard.createBoardSnapshot(self.mainBoard)
             startTile = tempBoard.board[self.y][self.x]
             targetTile = tempBoard.board[row][col]
+
+            movingPiece = startTile.piece
+            if movingPiece is None:
+                continue
 
             if targetTile.isOccupied() and targetTile.piece.team == self.team:
                 continue
 
-            originalX = self.x
-            originalY = self.y
-            originalBoard = self.mainBoard.createBoardSnapshot(self.mainBoard)
-            targetTile.putPiece(self)
             startTile.putPiece(None)
-            self.x = targetTile.x
-            self.y = targetTile.y
+            targetTile.putPiece(movingPiece)
+            movingPiece.x = targetTile.x
+            movingPiece.y = targetTile.y
 
             king = tempBoard.getKingOnBoard(self.team)
             if not tempBoard.isBoardInCheck(king):
                 legalMoves.append(move)
-                print(move)
 
-            #reset
-            tempBoard = originalBoard
-            self.x = originalX
-            self.y = originalY
-    
         return legalMoves
 
-    def getCopy(self, board) -> Piece:
+    def getCopy(self, board) -> "Piece":
         copyPiece = self.__class__.__new__(self.__class__)
         copyPiece.team = self.team
         copyPiece.x = self.x
         copyPiece.y = self.y
         copyPiece.img = self.img
         copyPiece.mainBoard = board
+        copyPiece.hasMoved = self.hasMoved
+        copyPiece.isSelected = False
+        return copyPiece
 
 
 

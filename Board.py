@@ -59,7 +59,6 @@ class Board:
                         for move in tile.piece.getMoves():
                             allOppMoves.append(tuple(move))
 
-            print(allOppMoves)
             return (king.y, king.x) in allOppMoves
 
     def update(self):
