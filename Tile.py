@@ -8,6 +8,7 @@ import Board
 
 class Tile() :
     def __init__(self, row:int, col:int, color:list, mainBoard:Board, piece:Piece = None):
+        # Each tile stores its position, color, optional piece, and whether it is a legal move target.
         self.piece = piece
         self.color = color
         self.x = col
@@ -20,7 +21,7 @@ class Tile() :
             self.piece.update()
 
     def draw(self, screen) -> None:
-
+        # Draw the tile background and, if needed, a small marker for available moves.
         pygame.draw.rect(screen, self.color, [self.x * Constants.TILE_SIZE + Constants.BOARDX, self.y * Constants.TILE_SIZE + Constants.BOARDY,Constants.TILE_SIZE, Constants.TILE_SIZE])
 
         if (self.isOccupied()):
@@ -36,6 +37,7 @@ class Tile() :
         return not self.piece == None
     
     def movePiece(self, clickedTile):
+        # Move the current piece onto the clicked tile and mark that it has moved.
         clickedTile.putPiece(None)
         clickedTile.putPiece(self.piece)
         self.piece.x = clickedTile.x

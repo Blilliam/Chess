@@ -3,9 +3,11 @@ import Tile
 from Tile import Tile
 from Piece import *
 from Constants import *
+import copy
 
 class Board: 
     def __init__(self):
+        # Create the 8x8 grid of tiles and assign alternating colors.
         self.board = [[None] * 8 for i in range(8)]
         for i in range(8):
             for j in range(8):
@@ -15,12 +17,14 @@ class Board:
                 self.board[i][j] = Tile(i, j, color, self)
                 
     def getPeice(self, x, y):
+        # Return the piece on a given board coordinate if one exists.
         if (0 <= x <= 7 and 0 <= y <= 7):
             if (self.board[y][x].isOccupied()):
                 return self.board[y][x].piece
         return None
 
     def createBoardSnapshot(self, sourceBoard=None):
+            # Build a separate board copy so moves can be tested without changing the real board.
             if sourceBoard is None:
                 boardToCopy = self.mainBoard 
             else:
@@ -36,23 +40,26 @@ class Board:
             return snapshotBoard
 
     def getKingOnBoard(self, team) -> Piece:
+            # Find the king for the given team on this board.
             for row in self.board:
                 for tile in row:
-                    if tile.isOccupied() and isinstance(tile.piece, Piece.King) and tile.piece.team == team:
+                    if tile.isOccupied() and isinstance(tile.piece, King) and tile.piece.team == team:
                         return tile.piece
             return None
 
-    def isBoardInCheck(self, board, king) -> bool:
+    def isBoardInCheck(self, king) -> bool:
+            # Check whether the provided king is currently under attack.
             if king is None:
                 return False
     
             allOppMoves = []
-            for row in board.board:
+            for row in self.board:
                 for tile in row:
                     if tile.isOccupied() and king.team == Constants.getOppColor(tile.piece.team):
                         for move in tile.piece.getMoves():
                             allOppMoves.append(tuple(move))
-    
+
+            print(allOppMoves)
             return (king.y, king.x) in allOppMoves
 
     def update(self):
@@ -66,7 +73,7 @@ class Board:
                 self.board[i][j].draw(screen)
 
     def fillBoard(self):
-        
+        # Place the starting pieces on the board in their initial positions.
         self.board[0][0].putPiece(Rook(WHITE, 0, 0, "WhiteRook.png", self))
         self.board[0][1].putPiece(Knight(WHITE, 0, 1, "WhiteKnight.png", self))
         self.board[0][2].putPiece(Bishop(WHITE, 0, 2, "WhiteBishop.png", self))

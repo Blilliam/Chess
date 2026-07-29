@@ -6,6 +6,7 @@ class Piece():
 
 
     def __init__(self, team:str, row:int, col:int, path:str, mainBoard:Board):
+        # Store the piece's team, position, sprite, and link to the board.
         self.team = team
         startString = "Images/"
         if team == Constants.BLACK:
@@ -35,6 +36,7 @@ class Piece():
         raise NotImplemented
 
     def getLegalMoves(self) -> list:
+        # Test candidate moves on a temporary board to avoid making illegal moves permanently.
         legalMoves = []
 
         tempBoard = self.mainBoard.createBoardSnapshot(self.mainBoard)
@@ -51,21 +53,22 @@ class Piece():
 
             originalX = self.x
             originalY = self.y
-            originalBoard = self.mainBoard
-            targetTile.putPiece(None)
-            targetTile.putPiece(startTile.piece)
+            originalBoard = self.mainBoard.createBoardSnapshot(self.mainBoard)
+            targetTile.putPiece(self)
             startTile.putPiece(None)
-            startTile.piece.x = targetTile.x
-            startTile.piece.y = targetTile.y
+            self.x = targetTile.x
+            self.y = targetTile.y
 
-            king = self.getKingOnBoard(tempBoard, self.team)
-            if not self.isBoardInCheck(tempBoard, king):
+            king = tempBoard.getKingOnBoard(self.team)
+            if not tempBoard.isBoardInCheck(king):
                 legalMoves.append(move)
+                print(move)
 
-            movingPiece.mainBoard = originalBoard
+            #reset
+            tempBoard = originalBoard
             self.x = originalX
             self.y = originalY
-
+    
         return legalMoves
 
     def getCopy(self, board) -> Piece:
@@ -80,6 +83,7 @@ class Piece():
 
 class Pawn(Piece):
     def getMoves(self) -> list:
+        # Pawns move forward, capture diagonally, and can move two squares from their start.
         moves = []
 
         
@@ -115,6 +119,7 @@ class Pawn(Piece):
 
 class King(Piece):
     def getMoves(self) -> list:
+        # Kings move one square in any direction.
         moves = []
         
         for dy in range(-1, 2):
@@ -136,6 +141,7 @@ class King(Piece):
 
 class Queen(Piece):
     def getMoves(self):
+        # Queens move like a rook and bishop combined.
         moves = []
         
         for dy in range(-1, 2):
@@ -162,6 +168,7 @@ class Queen(Piece):
 
 class Rook(Piece):
     def getMoves(self):
+        # Rooks move horizontally or vertically until blocked.
         moves = []
         
         for dy in range(-1, 2):
@@ -190,6 +197,7 @@ class Rook(Piece):
 
 class Bishop(Piece):
     def getMoves(self):
+        # Bishops move diagonally until blocked.
         moves = []
         
         for dy in range(-1, 2):
@@ -218,6 +226,7 @@ class Bishop(Piece):
 
 class Knight(Piece):
     def getMoves(self):
+        # Knights move in an L-shape and are not blocked by pieces in between.
         startMoves = [[2, 1],
                  [2, -1],
                  [1, 2],
