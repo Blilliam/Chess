@@ -59,8 +59,12 @@ class Board:
         allOppMoves = []
         for row in self.board:
             for tile in row:
-                if tile.isOccupied() and team == Constants.getOppColor(tile.piece.team) and (tile.piece, Piece.King):
-                    for move in tile.piece.getMoves():
+                if tile.isOccupied() and team == Constants.getOppColor(tile.piece.team):
+                    if isinstance(tile.piece, King):
+                        pieceMoves = tile.piece.getMoves(False)
+                    else:
+                        pieceMoves = tile.piece.getMoves()
+                    for move in pieceMoves:
                         allOppMoves.append(tuple(move))
 
         return allOppMoves

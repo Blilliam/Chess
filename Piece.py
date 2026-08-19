@@ -119,7 +119,7 @@ class Pawn(Piece):
 
 class King(Piece):
 
-    def getMoves(self) -> list:
+    def getMoves(self, includeCastling = True) -> list:
         # Kings move one square in any direction.
         moves = []
         
@@ -138,18 +138,38 @@ class King(Piece):
                         if self.mainBoard.board[row][col].piece.team != self.team:
                             moves.append([row, col])
 
-        if (not self.hasMoved):
-            print(self.mainBoard.board[self.y][0].piece, self.y)
-            if (not self.mainBoard.board[self.y][0].piece.hasMoved):
-                if ((not (self.y, 2) in self.mainBoard.getAllOppMoves(self.team)) and not self.mainBoard.board[self.y][2].isOccupied()):
-                    if ((not (self.y, 3) in self.mainBoard.getAllOppMoves(self.team))and not self.mainBoard.board[self.y][3].isOccupied()):
-                        if (not self.mainBoard.board[self.y][1].isOccupied()):
-                            moves.append([self.y, self.x-2])
 
-            if (not self.mainBoard.board[self.y][7].piece.hasMoved):
-                if ((not (self.y, 6) in self.mainBoard.getAllOppMoves(self.team)) and not self.mainBoard.board[self.y][6].isOccupied()):
-                    if ((not (self.y, 5) in self.mainBoard.getAllOppMoves(self.team))and not self.mainBoard.board[self.y][5].isOccupied()):
-                        moves.append([self.y, self.x+2])
+
+        if includeCastling and not self.hasMoved: #if havent moved
+            oppMoves = self.mainBoard.getAllOppMoves(self.team)
+
+            if (self.y, self.x) not in oppMoves: #if not in check
+                rookTile = self.mainBoard.board[self.y][0]
+
+                for i in range(-1, 2, 2):
+                    if (rookTile.isOccupied() and isinstance(rookTile.piece, Rook)):
+                        if (not rookTile.piece.hasMoved):
+                            #empy check
+                            isEmpty = not any(self.mainBoard.board[self.y][i].isOccupied() for i in range(1, self.x))
+                            isSafe = (self.y, self.x+i) not in oppMoves and (self.y, self.x+2 * i) not in oppMoves
+                            if isEmpty and isSafe:
+                                moves.append([self.y, self.x+2 * i])
+                    rookTile = self.mainBoard.board[self.y][ 7]
+
+
+
+        # if (not self.hasMoved and (self.y, self.x) not in self.mainBoard.getAllOppMoves(self.team, True)):
+        #     print(self.mainBoard.board[self.y][0].piece, self.y)
+        #     if (not self.mainBoard.board[self.y][0].piece.hasMoved):
+        #         if ((not (self.y, 2) in self.mainBoard.getAllOppMoves(self.team)) and not self.mainBoard.board[self.y][2].isOccupied()):
+        #             if ((not (self.y, 3) in self.mainBoard.getAllOppMoves(self.team))and not self.mainBoard.board[self.y][3].isOccupied()):
+        #                 if (not self.mainBoard.board[self.y][1].isOccupied()):
+        #                     moves.append([self.y, self.x-2])
+
+        #     if (not self.mainBoard.board[self.y][7].piece.hasMoved):
+        #         if ((not (self.y, 6) in self.mainBoard.getAllOppMoves(self.team)) and not self.mainBoard.board[self.y][6].isOccupied()):
+        #             if ((not (self.y, 5) in self.mainBoard.getAllOppMoves(self.team))and not self.mainBoard.board[self.y][5].isOccupied()):
+        #                 moves.append([self.y, self.x+2])
                     
 
             
