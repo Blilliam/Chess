@@ -9,6 +9,7 @@ class Board:
     def __init__(self):
         # Create the 8x8 grid of tiles and assign alternating colors.
         self.board = [[None] * 8 for i in range(8)]
+        self.passantTile = None
         for i in range(8):
             for j in range(8):
                 color = Constants.COLOR1
@@ -52,14 +53,17 @@ class Board:
             if king is None:
                 return False
     
-            allOppMoves = []
-            for row in self.board:
-                for tile in row:
-                    if tile.isOccupied() and king.team == Constants.getOppColor(tile.piece.team):
-                        for move in tile.piece.getMoves():
-                            allOppMoves.append(tuple(move))
+            return (king.y, king.x) in self.getAllOppMoves(king.team)
 
-            return (king.y, king.x) in allOppMoves
+    def getAllOppMoves(self, team):
+        allOppMoves = []
+        for row in self.board:
+            for tile in row:
+                if tile.isOccupied() and team == Constants.getOppColor(tile.piece.team) and (tile.piece, Piece.King):
+                    for move in tile.piece.getMoves():
+                        allOppMoves.append(tuple(move))
+
+        return allOppMoves
 
     def update(self):
         for i in range(len(self.board)):
@@ -76,8 +80,8 @@ class Board:
         self.board[0][0].putPiece(Rook(WHITE, 0, 0, "WhiteRook.png", self))
         self.board[0][1].putPiece(Knight(WHITE, 0, 1, "WhiteKnight.png", self))
         self.board[0][2].putPiece(Bishop(WHITE, 0, 2, "WhiteBishop.png", self))
-        self.board[0][3].putPiece(Queen(WHITE, 0, 3, "WhiteQueen.png", self))
-        self.board[0][4].putPiece(King(WHITE, 0, 4, "WhiteKing.png", self))
+        self.board[0][4].putPiece(Queen(WHITE, 0, 4, "WhiteQueen.png", self))
+        self.board[0][3].putPiece(King(WHITE, 0, 3, "WhiteKing.png", self))
         self.board[0][5].putPiece(Bishop(WHITE, 0, 5, "WhiteBishop.png", self))
         self.board[0][6].putPiece(Knight(WHITE, 0, 6, "WhiteKnight.png", self))
         self.board[0][7].putPiece(Rook(WHITE, 0, 7, "WhiteRook.png", self))
@@ -89,8 +93,8 @@ class Board:
         self.board[7][0].putPiece(Rook(BLACK, 7, 0, "BlackRook.png", self))
         self.board[7][1].putPiece(Knight(BLACK, 7, 1, "BlackKnight.png", self))
         self.board[7][2].putPiece(Bishop(BLACK, 7, 2, "BlackBishop.png", self))
-        self.board[7][3].putPiece(Queen(BLACK, 7, 3, "BlackQueen.png", self))
-        self.board[7][4].putPiece(King(BLACK, 7, 4, "BlackKing.png", self))
+        self.board[7][4].putPiece(Queen(BLACK, 7, 4, "BlackQueen.png", self))
+        self.board[7][3].putPiece(King(BLACK, 7, 3, "BlackKing.png", self))
         self.board[7][5].putPiece(Bishop(BLACK, 7, 5, "BlackBishop.png", self))
         self.board[7][6].putPiece(Knight(BLACK, 7, 6, "BlackKnight.png", self))
         self.board[7][7].putPiece(Rook(BLACK, 7, 7, "BlackRook.png", self))

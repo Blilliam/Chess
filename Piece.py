@@ -109,14 +109,16 @@ class Pawn(Piece):
         for i in (-1, 1):
             col = self.x + i
             if 0 <= row < 8 and 0 <= col < 8:
-                if self.mainBoard.board[row][col].isOccupied():
+                if self.mainBoard.board[row][col].isOccupied() or self.mainBoard.passantTile == (row, col):
                     moves.append([row, col])
+
 
         
 
         return moves
 
 class King(Piece):
+
     def getMoves(self) -> list:
         # Kings move one square in any direction.
         moves = []
@@ -135,6 +137,24 @@ class King(Piece):
                     else:
                         if self.mainBoard.board[row][col].piece.team != self.team:
                             moves.append([row, col])
+
+        if (not self.hasMoved):
+            print(self.mainBoard.board[self.y][0].piece, self.y)
+            if (not self.mainBoard.board[self.y][0].piece.hasMoved):
+                if ((not (self.y, 2) in self.mainBoard.getAllOppMoves(self.team)) and not self.mainBoard.board[self.y][2].isOccupied()):
+                    if ((not (self.y, 3) in self.mainBoard.getAllOppMoves(self.team))and not self.mainBoard.board[self.y][3].isOccupied()):
+                        if (not self.mainBoard.board[self.y][1].isOccupied()):
+                            moves.append([self.y, self.x-2])
+
+            if (not self.mainBoard.board[self.y][7].piece.hasMoved):
+                if ((not (self.y, 6) in self.mainBoard.getAllOppMoves(self.team)) and not self.mainBoard.board[self.y][6].isOccupied()):
+                    if ((not (self.y, 5) in self.mainBoard.getAllOppMoves(self.team))and not self.mainBoard.board[self.y][5].isOccupied()):
+                        moves.append([self.y, self.x+2])
+                    
+
+            
+
+        
                         
         return moves
 

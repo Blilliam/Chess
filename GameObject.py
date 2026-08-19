@@ -18,6 +18,7 @@ class GameObject:
         self.isRunning = True
         self.cPiece = None
         self.turn = Constants.WHITE
+        self.Checkmate = False
 
     def draw(self, screen):
         self.mainBoard.draw(screen)
@@ -31,6 +32,7 @@ class GameObject:
                 self.isRunning = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.handleClick(event)
+
 
     def clearSelectionAndMoves(self):
         # Reset all move highlights and clear any previously selected piece.
@@ -54,6 +56,9 @@ class GameObject:
             row, col = move
             if 0 <= row < 8 and 0 <= col < 8:
                 self.mainBoard.board[row][col].isMoveable = True
+
+    def gameOver(self, side):
+        print("Winner: " + side)
 
 
     def handleClick(self, event):
@@ -81,6 +86,18 @@ class GameObject:
             self.clearSelectionAndMoves()
             self.mainBoard.isBoardInCheck(self.mainBoard.getKingOnBoard(Constants.getOppColor(self.turn)))
 
+            #checking checkmate
+            legalMoveCount = 0
+
+            for row in self.mainBoard.board:
+                for tile in row:
+                    if (tile.isOccupied() and tile.piece.team == Constants.getOppColor(self.turn)):
+                        legalMoveCount += len(tile.piece.getLegalMoves())
+
+            if legalMoveCount == 0:
+                self.gameOver(self.turn)
+
+
             self.turn = Constants.getOppColor(self.turn)
             return
 
@@ -98,6 +115,8 @@ class GameObject:
         # Clicking an empty tile clears the current selection.
         self.clearSelectionAndMoves()
         self.mainBoard.isBoardInCheck(self.mainBoard.getKingOnBoard(Constants.getOppColor(self.turn)))
+
+
         
 
 

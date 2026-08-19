@@ -1,3 +1,4 @@
+from numpy import true_divide
 import pygame
 import Piece
 import Constants
@@ -38,12 +39,32 @@ class Tile() :
     
     def movePiece(self, clickedTile):
         # Move the current piece onto the clicked tile and mark that it has moved.
+        tempPiece = self.piece
+        tempy = self.piece.y
         clickedTile.putPiece(None)
         clickedTile.putPiece(self.piece)
         self.piece.x = clickedTile.x
         self.piece.y = clickedTile.y
         self.piece = None
+        
+
+        #passant
+        if (isinstance(tempPiece, Piece.Pawn)):
+            if (abs(tempy - clickedTile.y) == 2):
+                direction = 1 
+                if tempPiece.team == Constants.WHITE:
+                    direction = -1
+                self.mainBoard.board[clickedTile.y + direction][clickedTile.x].isMoveable = True
+                self.mainBoard.passantTile = (clickedTile.y + direction, clickedTile.x)
+
+        #taking passant
+        if (isinstance(tempPiece, Piece.Pawn)):
+                    if ((clickedTile.y, clickedTile.x) == self.mainBoard.passantTile):
+                        self.mainBoard.board[tempy][clickedTile.x].putPiece(None)
+                
+
         clickedTile.piece.hasMoved = True
+
 
 
     
