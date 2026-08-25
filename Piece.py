@@ -144,17 +144,26 @@ class King(Piece):
             oppMoves = self.mainBoard.getAllOppMoves(self.team)
 
             if (self.y, self.x) not in oppMoves: #if not in check
-                rookTile = self.mainBoard.board[self.y][0]
-
                 for i in range(-1, 2, 2):
-                    if (rookTile.isOccupied() and isinstance(rookTile.piece, Rook)):
-                        if (not rookTile.piece.hasMoved):
-                            #empy check
-                            isEmpty = not any(self.mainBoard.board[self.y][i].isOccupied() for i in range(1, self.x))
-                            isSafe = (self.y, self.x+i) not in oppMoves and (self.y, self.x+2 * i) not in oppMoves
+                    rookCol = 0 if i == -1 else 7
+                    rookTile = self.mainBoard.board[self.y][rookCol]
+
+                    if rookTile.isOccupied() and isinstance(rookTile.piece, Rook):
+                        if not rookTile.piece.hasMoved:
+                            # squares strictly between the king and its own rook
+                            if i == -1:
+                                betweenCols = range(1, self.x)
+                            else:
+                                betweenCols = range(self.x + 1, rookCol)
+
+                            isEmpty = not any(
+                                self.mainBoard.board[self.y][c].isOccupied()
+                                for c in betweenCols
+                            )
+                            isSafe = (self.y, self.x + i) not in oppMoves and (self.y, self.x + 2 * i) not in oppMoves
+
                             if isEmpty and isSafe:
-                                moves.append([self.y, self.x+2 * i])
-                    rookTile = self.mainBoard.board[self.y][ 7]
+                                moves.append([self.y, self.x + 2 * i])
 
 
 

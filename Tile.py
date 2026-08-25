@@ -48,19 +48,19 @@ class Tile() :
         self.piece.y = clickedTile.y
         self.piece = None
 
-        if (isinstance(tempPiece, Piece.King) and abs(clickedTile.x - tempX) >= 2):
+        if (isinstance(tempPiece, Piece.King) and abs(clickedTile.x - tempX) == 2):
             if clickedTile.x > tempX:
                 rookTile = self.mainBoard.board[tempY][7]
                 rookDestTile = self.mainBoard.board[tempY][tempX + 1]
             else:
                 rookTile = self.mainBoard.board[tempY][0]
-                rookDesTile = self.mainBoard.board[tempY][tempX-1]
+                rookDestTile = self.mainBoard.board[tempY][tempX-1]
 
             rookPiece = rookTile.piece
             rookTile.putPiece(None)
-            rookDesTile.putPiece(rookPiece)
-            rookPiece.x = rookDesTile.x
-            rookPiece.y = rookDesTile.y
+            rookDestTile.putPiece(rookPiece)
+            rookPiece.x = rookDestTile.x
+            rookPiece.y = rookDestTile.y
             rookPiece.hasMoved = True
              
         
