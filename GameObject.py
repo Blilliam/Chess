@@ -10,14 +10,16 @@ import Piece
 
 class GameObject:
 
-    def __init__(self):
+    def __init__(self, client):
         # Create the main board and initialize the game state.
+        self.client = client
         self.mainBoard = Board()
         self.mainBoard.fillBoard()
         self.pastBoard = Board()
         self.isRunning = True
         self.cPiece = None
         self.turn = Constants.WHITE
+        self.myTeam = None
         self.Checkmate = False
 
     def draw(self, screen):
@@ -62,6 +64,9 @@ class GameObject:
 
 
     def handleClick(self, event):
+        if self.myTeam != self.turn:
+            return
+
         # Convert the mouse position into a board coordinate.
         cX = event.pos[0] // TILE_SIZE
         cY = event.pos[1] // TILE_SIZE
@@ -81,24 +86,16 @@ class GameObject:
             originTile = self.mainBoard.board[self.cPiece.y][self.cPiece.x]
             self.cPiece.isSelected = False
 
-            originTile.movePiece(clickedTile)
+            event = {
+                "type": "move",
+                "from": [originTile.x, originTile.y],
+                "to": [clickedTile.x, clickedTile.y]
+            }
+
+            self.client.sendMsg(event)
 
             self.clearSelectionAndMoves()
-            self.mainBoard.isBoardInCheck(self.mainBoard.getKingOnBoard(Constants.getOppColor(self.turn)))
-
-            #checking checkmate
-            legalMoveCount = 0
-
-            for row in self.mainBoard.board:
-                for tile in row:
-                    if (tile.isOccupied() and tile.piece.team == Constants.getOppColor(self.turn)):
-                        legalMoveCount += len(tile.piece.getLegalMoves())
-
-            if legalMoveCount == 0:
-                self.gameOver(self.turn)
-
-
-            self.turn = Constants.getOppColor(self.turn)
+            
             return
 
         # Allow clicking the same piece again to deselect it.
@@ -117,7 +114,33 @@ class GameObject:
         self.mainBoard.isBoardInCheck(self.mainBoard.getKingOnBoard(Constants.getOppColor(self.turn)))
 
 
-        
+    def handleNetworkMessage(self, msg):
+        print(msg)
+        msgType = msg["type"]
+        if msgType == "init":
+            self.myTeam = msg["team"]
+            print("set the team")
+        if msgType == "move":
+            self.receiveFromServer(msg)
+
+    def receiveFromServer(self, event):
+        self.mainBoard.board[event["from"][1]][event["from"][0]].movePiece(self.mainBoard.board[event["to"][1]][event["to"][0]])
+
+        self.mainBoard.isBoardInCheck(self.mainBoard.getKingOnBoard(Constants.getOppColor(self.turn)))
+
+        #checking checkmate
+        legalMoveCount = 0
+
+        for row in self.mainBoard.board:
+            for tile in row:
+                if (tile.isOccupied() and tile.piece.team == Constants.getOppColor(self.turn)):
+                    legalMoveCount += len(tile.piece.getLegalMoves())
+
+        if legalMoveCount == 0:
+            self.gameOver(self.turn)
+
+
+        self.turn = Constants.getOppColor(self.turn)
 
 
             
